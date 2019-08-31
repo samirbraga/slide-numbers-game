@@ -5,7 +5,9 @@
 
 html, body {
 	background: white;
-	height: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
 }
 
 body {
@@ -13,6 +15,10 @@ body {
   align-items: center;
   justify-content: center;
   transition: color 0.3s ease-out;
+}
+
+body.dark-theme {
+    background: black;
 }
 
 .game-container {
@@ -50,6 +56,10 @@ body {
     visibility: hidden;
 }
 
+.dark-theme .game-wrapper::after {
+    background: black;
+}
+
 .game-wrapper.loading::after {
     opacity: 0.8;
     visibility: visible;
@@ -79,6 +89,12 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    border: 2px solid currentColor;
+}
+
+.dark-theme .game-wrapper .game-box .game-box-number {
+    background: transparent;
+    border-radius: 0.2rem;
 }
 
 .game-wrapper .game-box .game-box-number span {
@@ -86,11 +102,17 @@ body {
     color: white;
 }
 
+.dark-theme .game-wrapper .game-box .game-box-number span {
+    opacity: 1;
+    color: currentColor;
+    text-shadow: 2px 2px 1rem currentColor, -2px -2px 1rem currentColor;
+}
+
 .game-controls {
     display: flex;
     flex-flow: row wrap;
     justify-content: space-evenly;
-    padding: 1.5rem 0 0 0;
+    padding: 1.5rem 0;
     color: inherit;
 }
 
@@ -113,4 +135,8 @@ body {
 
 .game-controls button.solve span {
     color: white;
+}
+
+.dark-theme .game-controls button.solve span {
+    color: black;
 }

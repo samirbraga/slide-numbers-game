@@ -1,4 +1,5 @@
 const SIZE = 3;
+
 const initialMatrix = [];
 
 const fillMatrix = m => {
@@ -33,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const getRandomColor = () => {
         const randomHue = Math.round(Math.random() * 360);
-        return `hsl(${randomHue}, 60%, 60%)`;
+        return `hsl(${randomHue}, 70%, 60%)`;
     };
 
     const deltas = Array((SIZE * SIZE) - 1).fill(1).map(() => [0, 0]);
@@ -43,6 +44,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const undoButton = document.querySelector("button.undo");
     const redoButton = document.querySelector("button.redo");
     const solveButton = document.querySelector("button.solve");
+    const themeButton = document.querySelector("button.toggle-theme");
+
+    themeButton.addEventListener('click', e => {
+        if (document.body.classList.contains('dark-theme')) {
+            e.target.innerHTML = 'LIGHT';
+        } else {
+            e.target.innerHTML = 'DARK'
+        };
+
+        document.body.classList.toggle('dark-theme');
+    });
 
     const renderBoxes = () => {
         const fragment = document.createDocumentFragment();

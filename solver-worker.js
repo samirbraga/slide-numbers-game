@@ -1,5 +1,30 @@
 
-const checkMatrixEquality = (m1, m2) => {
+const checkMatrixEquality = (m1, m2, i, j) => {
+    if (m1[i][j] !== m2[i][j]) {
+        return false;
+    }
+
+    const SIZE = m1.length;
+
+    let playPositions = [
+        [-1, 0],
+        [0, 1],
+        [1, 0],
+        [0, -1]
+    ];
+
+    const someDifferent = playPositions
+    .filter(([di, dj]) => {
+        let dontOut = !(i + di < 0 || i + di > SIZE - 1 || j + dj < 0 || j + dj > SIZE - 1);
+        return dontOut;
+    })
+    .some(([di, dj]) => m1[i + di][j + dj] !== m2[i + di][j + dj]);
+
+    if (someDifferent) {
+        return false;
+    }
+    
+
     for (let i = 0; i < m1.length; i++) {
         for (let j = 0; j < m1[0].length; j++) {
             if (m1[i][j] !== m2[i][j]) {
@@ -11,14 +36,33 @@ const checkMatrixEquality = (m1, m2) => {
     return true;
 };
 
+// const checkMatrixEquality = (m1, m2, i, j) => {
+//     if (m1[i][j] !== m2[i][j]) {
+//         return false;
+//     }
+    
+//     let playPositions = [
+//         [-1, 0],
+//         [0, 1],
+//         [1, 0],
+//         [0, -1],
+//         [0, 0]
+//     ];
+
+//     const SIZE = m1.length;
+
+//     playPositions = playPositions.filter(([di, dj]) => {
+//         let dontOut = !(i + di < 0 || i + di > SIZE - 1 || j + dj < 0 || j + dj > SIZE - 1);
+//         return dontOut;
+//     });
+
+//     return !playPositions.some(([di, dj]) => {
+//         return m1[i + di][j + dj] !== m2[i + di][j + dj];
+//     });
+// };
+
 const copyMatrix = m => {
-    const newM = [...Array(m.length).fill(0).map(() => Array(m.length).fill(0))];
-    for (let i = 0; i < m.length; i++) {
-        for (let j = 0; j < m.length; j++) {
-            newM[i][j] = m[i][j];
-        }
-    }
-    return newM;
+    return m.slice(0).map(r => r.slice(0));
 };
 
 const StepNode = function () {
@@ -81,8 +125,7 @@ const StepNode = function () {
     };
 
     this.checkSolution = () => {
-        const isSolution = checkMatrixEquality(this.matrix, this.initialMatrix);
-        this.isSolution = isSolution;
+        this.isSolution = checkMatrixEquality(this.matrix, this.initialMatrix, ...this.blankPosition);
     };
 
     this.generateChildren = () => {
@@ -108,31 +151,33 @@ const StepNode = function () {
 
         this.children = [];
 
-        const solutionFound = playPositions.some(([di, dj]) => {
+        for (let position of playPositions) {
+            let [di, dj] = position;
             const child = new StepNode();
             child.playedPosition = [i + di, j + dj];
+            child.blankPosition = [i + di, j + dj];
+
             child.matrix = this.play(...child.playedPosition);
             let hasAlreadyPlayed = false;
 
             for (let parentNode = child.parentNode; parentNode !== null; parentNode = parentNode.parentNode) {
-                hasAlreadyPlayed = checkMatrixEquality(child.matrix, parentNode.matrix);
+                hasAlreadyPlayed = checkMatrixEquality(child.matrix, parentNode.matrix, ...child.blankPosition);
                 if (hasAlreadyPlayed) {
                     break;
                 }
             }
 
             if (!hasAlreadyPlayed) {
-                child.blankPosition = [i + di, j + dj];
                 child.initialMatrix = this.initialMatrix;
                 child.parentNode = this;
                 child.checkSolution();
                 this.children.push(child);
             }
 
-            return child.isSolution;
-        });
-
-        return solutionFound;
+            if (child.isSolution) {
+                return child.isSolution;
+            }
+        }
     };
 };
 
@@ -141,6 +186,7 @@ const solve = (m, initialMatrix) => {
     root.initialMatrix = initialMatrix;
     root.matrix = copyMatrix(m);
     root.blankPosition = root.findBlank();
+    root.checkSolution();
 
     const findSolution = nodes => {
         let children = [];
@@ -156,7 +202,11 @@ const solve = (m, initialMatrix) => {
         return findSolution(children);
     };
 
-    return findSolution([root]);
+    if (!root.isSolution) {
+        return findSolution([root]);
+    } else {
+        return [];
+    }
 };
 
 
