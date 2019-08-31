@@ -7,10 +7,14 @@ const checkMatrixEquality = (m1, m2, i, j) => {
     const SIZE = m1.length;
 
     let playPositions = [
-        [-1, 0],
-        [0, 1],
-        [1, 0],
-        [0, -1]
+        [-1,  0],
+        [ 0,  1],
+        [ 1,  0],
+        [ 0, -1],
+        [-1, -1],
+        [ 1, -1],
+        [-1,  1],
+        [ 1,  1]
     ];
 
     const someDifferent = playPositions
@@ -24,6 +28,7 @@ const checkMatrixEquality = (m1, m2, i, j) => {
         return false;
     }
     
+    console.log(true);
 
     for (let i = 0; i < m1.length; i++) {
         for (let j = 0; j < m1[0].length; j++) {
