@@ -16,7 +16,7 @@ const fillMatrix = m => {
     }
 }
 
-const solverWorker = new Worker('worker.js');
+const solverWorker = new Worker('solver-worker.js');
 
 document.addEventListener('DOMContentLoaded', () => {
     const animate = (node, animationName, callback) => {
