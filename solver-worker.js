@@ -28,8 +28,6 @@ const checkMatrixEquality = (m1, m2, i, j) => {
         return false;
     }
     
-    console.log(true);
-
     for (let i = 0; i < m1.length; i++) {
         for (let j = 0; j < m1[0].length; j++) {
             if (m1[i][j] !== m2[i][j]) {
@@ -40,31 +38,6 @@ const checkMatrixEquality = (m1, m2, i, j) => {
 
     return true;
 };
-
-// const checkMatrixEquality = (m1, m2, i, j) => {
-//     if (m1[i][j] !== m2[i][j]) {
-//         return false;
-//     }
-    
-//     let playPositions = [
-//         [-1, 0],
-//         [0, 1],
-//         [1, 0],
-//         [0, -1],
-//         [0, 0]
-//     ];
-
-//     const SIZE = m1.length;
-
-//     playPositions = playPositions.filter(([di, dj]) => {
-//         let dontOut = !(i + di < 0 || i + di > SIZE - 1 || j + dj < 0 || j + dj > SIZE - 1);
-//         return dontOut;
-//     });
-
-//     return !playPositions.some(([di, dj]) => {
-//         return m1[i + di][j + dj] !== m2[i + di][j + dj];
-//     });
-// };
 
 const copyMatrix = m => {
     return m.slice(0).map(r => r.slice(0));
