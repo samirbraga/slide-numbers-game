@@ -1,0 +1,116 @@
+* {
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+html, body {
+	background: white;
+	height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease-out;
+}
+
+.game-container {
+  max-width: 500px;
+}
+
+.game-wrapper {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+  width: 100%;
+  margin: auto;
+  border-radius: 0.2rem;
+  border: 2px solid currentColor;
+  padding: 0.5rem;
+  position: relative;
+}
+
+.game-wrapper::after {
+    content: 'Thinking...';
+    display: flex;
+    font-size: 2rem;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    opacity: 0;
+    position: absolute;
+    font-weight: bold;
+    left: 0;
+    top: 0;
+    background: white;
+    width: 100%;
+    height: 100%;
+    transition: opacity 0.3s linear, visibility 0s linear 0.3s;
+    visibility: hidden;
+}
+
+.game-wrapper.loading::after {
+    opacity: 0.8;
+    visibility: visible;
+    transition: opacity 0.3s linear, visibility 0s linear;
+}
+
+.game-wrapper .game-box {
+    flex: 1;
+    padding: 0.5rem;
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    opacity: 0;
+}
+
+.game-wrapper .game-box::before {
+    content: '';
+    padding-top: 100%;
+    float: left;
+}
+
+.game-wrapper .game-box .game-box-number {
+    background: currentColor;
+    width: 100%;
+    height: 100%;
+    border-radius: 0.2rem;
+    box-shadow: 0 0 1rem 0 currentColor;
+    color: inherit;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.game-wrapper .game-box .game-box-number span {
+    opacity: 0.7;
+    color: white;
+}
+
+.game-controls {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-evenly;
+    padding: 1.5rem 0 0 0;
+    color: inherit;
+}
+
+.game-controls button {
+    flex-basis: 25%;
+    color: inherit;
+    background: transparent;
+    border: 2px solid currentColor;
+    border-radius: 0.2rem;
+    padding: 1rem;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.game-controls button.solve {
+    margin-top: 1rem;
+    flex-basis: 80%;
+    background: currentColor;
+}
+
+.game-controls button.solve span {
+    color: white;
+}
