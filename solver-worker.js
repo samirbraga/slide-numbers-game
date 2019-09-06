@@ -52,13 +52,15 @@ const StepNode = function () {
     this.isSolution = false;
 
     this.getPath = () => {
-        if (this.parentNode) {
-            const [pi, pj] = this.playedPosition;
-            let parentPath = this.parentNode.getPath();
-            return [...parentPath, [pi, pj, this.parentNode.matrix[pi][pj] - 1]];
-        } else {
-            return [];
+        let node = this;
+        const steps = [];
+
+        while (node) {
+            steps.unshift(node.playedPosition);
+            node = node.parentNode;
         }
+
+        return steps;
     };
 
     this.findBlank = () => {
@@ -87,7 +89,7 @@ const StepNode = function () {
                 return false;
             }
 
-            if (m[i + di][dj + j] === 0) {
+            if (m[i + di][j + dj] === 0) {
                 ni = i + di;
                 nj = j + dj;
 
@@ -150,10 +152,10 @@ const StepNode = function () {
                 child.parentNode = this;
                 child.checkSolution();
                 this.children.push(child);
-            }
 
-            if (child.isSolution) {
-                return child.isSolution;
+                if (child.isSolution) {
+                    return child.isSolution;
+                }
             }
         }
     };
@@ -166,25 +168,26 @@ const solve = (m, initialMatrix) => {
     root.blankPosition = root.findBlank();
     root.checkSolution();
 
-    const findSolution = nodes => {
-        let children = [];
-
-        for (let node of nodes) {
-            const solutionFound = node.generateChildren();
-            if (solutionFound) {
-                return node.children[node.children.length - 1].getPath();
-            }
-            children = children.concat(node.children);
-        };
-
-        return findSolution(children);
-    };
-
-    if (!root.isSolution) {
-        return findSolution([root]);
-    } else {
+    if (root.isSolution) {
         return [];
     }
+
+    let queue = [root];
+
+    while (queue.length > 0) {
+        const node = queue[0];
+
+        const solutionFound = node.generateChildren();
+        if (solutionFound) {
+            return node.children[node.children.length - 1].getPath();
+        }
+
+        queue = queue.concat(node.children);
+
+        queue.splice(queue.indexOf(node), 1);
+    }
+
+    return [];
 };
 
 
@@ -192,9 +195,11 @@ self.addEventListener('message', function (e) {
     const { type, data } = e.data;
 
     if (type === 'solve') {
+        const steps = solve(data.matrix, data.initialMatrix);
+
         self.postMessage({
             type: 'solved',
-            steps: solve(data.matrix, data.initialMatrix)
+            steps
         });
     }
 }, false);

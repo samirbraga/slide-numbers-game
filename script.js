@@ -1,4 +1,4 @@
-const SIZE = 3;
+const SIZE = 10;
 
 const initialMatrix = [];
 
@@ -97,7 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
         gameBoxes[k].style.transform = `translate(${deltas[k][0] * 100}%, ${deltas[k][1] * 100}%)`;
     }
 
-    const play = (m, i, j, index) => {
+    const play = (m, i, j) => {
+        const index = m[i][j] - 1;
         const newPositions = [
             [-1, 0],
             [0, -1],
@@ -147,14 +148,14 @@ document.addEventListener('DOMContentLoaded', () => {
             let i = parseInt(box.getAttribute('data-pos-x'));
             let j = parseInt(box.getAttribute('data-pos-y'));
 
-            play(matrix, i, j, index);
+            play(matrix, i, j);
 
             let ni = parseInt(box.getAttribute('data-pos-x'));
             let nj = parseInt(box.getAttribute('data-pos-y'));
 
             if (ni !== i || nj !== j) {
                 actionTimeline = actionTimeline.slice(0, currentTimeIndex);
-                actionTimeline.push([ni, nj, index]);
+                actionTimeline.push([ni, nj]);
 
                 document.body.style.color = getRandomColor();
 
@@ -167,15 +168,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     undoButton.addEventListener('click', () => {
         if (currentTimeIndex > 0) {
-            const [i, j, index] = actionTimeline[--currentTimeIndex];
-            play(matrix, i, j, index);
+            const [i, j] = actionTimeline[--currentTimeIndex];
+            play(matrix, i, j);
         }
     });
 
     redoButton.addEventListener('click', () => {
         if (currentTimeIndex < actionTimeline.length) {
-            const [i, j, index] = actionTimeline[currentTimeIndex++];
-            play(matrix, i, j, index);
+            const [i, j] = actionTimeline[currentTimeIndex++];
+            play(matrix, i, j);
         }
     });
 
@@ -195,10 +196,10 @@ document.addEventListener('DOMContentLoaded', () => {
             gameContainer.classList.remove('loading');
 
             const solvingSteps = e.data.steps;
-            solvingSteps.forEach(([i, j, index], ind) => {
+            solvingSteps.forEach(([i, j], index) => {
                 setTimeout(() => {
-                    play(matrix, i, j, index);
-                }, ind * 200);
+                    play(matrix, i, j);
+                }, index * 200);
             });
         }
     }, false);
