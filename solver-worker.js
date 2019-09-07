@@ -108,11 +108,8 @@ const StepNode = function () {
         this.isSolution = checkMatrixEquality(this.matrix, this.initialMatrix, ...this.blankPosition);
     };
 
-    this.generateChildren = () => {
-        if (this.isSolution) {
-            return true;
-        }
-
+    this.getOffsets = size => {
+        const [i, j] = this.blankPosition;
         let playPositions = [
             [-1, 0],
             [0, 1],
@@ -120,22 +117,29 @@ const StepNode = function () {
             [0, -1]
         ];
 
-        const [i, j] = this.blankPosition;
-        const SIZE = this.matrix.length;
-
         playPositions = playPositions.filter(([di, dj]) => {
-            let dontOut = !(i + di < 0 || i + di > SIZE - 1 || j + dj < 0 || j + dj > SIZE - 1);
-
+            let dontOut = !(i + di < 0 || i + di > size - 1 || j + dj < 0 || j + dj > size - 1);
             return dontOut;
         });
 
-        this.children = [];
+        return playPositions;
+    }
+
+    this.generateChildren = () => {
+        if (this.isSolution) {
+            return true;
+        }
+
+        const [i, j] = this.blankPosition;
+        const SIZE = this.matrix.length;
+        const playPositions = this.getOffsets(SIZE);
 
         for (let position of playPositions) {
             let [di, dj] = position;
             const child = new StepNode();
             child.playedPosition = [i + di, j + dj];
             child.blankPosition = [i + di, j + dj];
+            child.parentNode = this;
 
             child.matrix = this.play(...child.playedPosition);
             let hasAlreadyPlayed = false;
@@ -149,12 +153,11 @@ const StepNode = function () {
 
             if (!hasAlreadyPlayed) {
                 child.initialMatrix = this.initialMatrix;
-                child.parentNode = this;
                 child.checkSolution();
                 this.children.push(child);
 
                 if (child.isSolution) {
-                    return child.isSolution;
+                    return true;
                 }
             }
         }
@@ -184,10 +187,27 @@ const solve = (m, initialMatrix) => {
 
         queue = queue.concat(node.children);
 
-        queue.splice(queue.indexOf(node), 1);
+        queue.shift();
     }
 
     return [];
+};
+
+const randomGame = (times=50) => {
+    const game = new StepNode();
+    game.initialMatrix = initialMatrix;
+    game.matrix = copyMatrix(initialMatrix);
+    game.blankPosition = game.findBlank();
+    game.checkSolution();
+    
+    for (let i = 0; i < times; i++) {
+        const offsets = game.getOffsets();
+        const offset = offsets[Math.round(Math.random() * (offsets.length - 1))];
+        const move = [game.blankPosition[0] + offset[0], game.blankPosition[1] + offset[1]];
+        game.matrix = game.play(...move);
+    }
+
+    return game.matrix;
 };
 
 
@@ -200,6 +220,11 @@ self.addEventListener('message', function (e) {
         self.postMessage({
             type: 'solved',
             steps
+        });
+    } else if (type === 'random_game') {
+        self.postMessage({
+            type: 'random_game_created',
+            game: randomGame()
         });
     }
 }, false);

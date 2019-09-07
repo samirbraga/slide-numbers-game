@@ -125,18 +125,21 @@ body.dark-theme {
     padding: 1rem;
     font-size: 1rem;
     font-weight: bold;
+    margin-top: 1rem;
 }
 
-.game-controls button.solve {
-    margin-top: 1rem;
-    flex-basis: 80%;
+.game-controls button.filled {
     background: currentColor;
 }
 
-.game-controls button.solve span {
+.game-controls button.full {
+    flex-basis: 80%;
+}
+
+.game-controls button.filled span {
     color: white;
 }
 
-.dark-theme .game-controls button.solve span {
+.dark-theme .game-controls button.filled span {
     color: black;
 }

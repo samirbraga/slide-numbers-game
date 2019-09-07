@@ -1,4 +1,4 @@
-const SIZE = 10;
+const SIZE = 3;
 
 const initialMatrix = [];
 
@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const undoButton = document.querySelector("button.undo");
     const redoButton = document.querySelector("button.redo");
     const solveButton = document.querySelector("button.solve");
+    const randomGameButton = document.querySelector("button.random");
     const themeButton = document.querySelector("button.toggle-theme");
 
     themeButton.addEventListener('click', e => {
@@ -159,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 document.body.style.color = getRandomColor();
 
-                currentTimeIndex++;
+                currentTimeIndex = actionTimeline.length;
             } else {
                 animate(box.children[0], 'shake');
             }
@@ -179,6 +180,12 @@ document.addEventListener('DOMContentLoaded', () => {
             play(matrix, i, j);
         }
     });
+
+    // randomGameButton.addEventListener('click', () => {
+    //     solverWorker.postMessage({
+    //         type: 'random_game'
+    //     });
+    // });
 
     solveButton.addEventListener('click', () => {
         gameContainer.classList.add('loading');
@@ -201,6 +208,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     play(matrix, i, j);
                 }, index * 200);
             });
+        } else if (e.data.type === 'random_game_created') {
+
         }
     }, false);
 });
