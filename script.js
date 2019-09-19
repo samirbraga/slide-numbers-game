@@ -40,34 +40,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const deltas = Array((SIZE * SIZE) - 1).fill(1).map(() => [0, 0]);
 
     const gameContainer = document.querySelector(".game-wrapper");
+    const gameInfo = document.querySelector(".game-info");
     const gameBoxes = [];
     const undoButton = document.querySelector("button.undo");
     const redoButton = document.querySelector("button.redo");
-    const solveButton = document.querySelector("button.solve");
+    const solveBFSButton = document.querySelector("button.solve-bfs");
+    const solveAStarButton = document.querySelector("button.solve-a-star");
     const randomGameButton = document.querySelector("button.random");
     const themeButton = document.querySelector("button.toggle-theme");
 
     themeButton.addEventListener('click', e => {
         if (document.body.classList.contains('dark-theme')) {
-            e.target.innerHTML = 'LIGHT';
+            e.target.innerHTML = 'DARK';
         } else {
-            e.target.innerHTML = 'DARK'
+            e.target.innerHTML = 'LIGHT'
         };
 
         document.body.classList.toggle('dark-theme');
     });
 
-    const renderBoxes = () => {
+    const renderBoxes = (initialMatrix) => {
         const fragment = document.createDocumentFragment();
         for (let i = 0; i < SIZE; i++) {
             for (let j = 0; j < SIZE; j++) {
-                const k = i * SIZE + j;
-                if (k < (SIZE * SIZE) - 1) {
+                const k = initialMatrix[i][j];
+                if (k > 0) {
                     const gameBox = document.createElement("div");
                     const gameBoxNumber = document.createElement("div");
                     const gameBoxNumberText = document.createElement("span");
 
-                    gameBoxNumberText.innerHTML = k + 1;
+                    gameBoxNumberText.innerHTML = k;
 
                     gameBox.classList.add("game-box");
                     gameBoxNumber.classList.add("game-box-number");
@@ -136,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     fillMatrix(initialMatrix);
-    renderBoxes();
+    renderBoxes(initialMatrix);
     document.body.style.color = getRandomColor();
 
     const matrix = JSON.parse(JSON.stringify(initialMatrix));
@@ -181,16 +183,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // randomGameButton.addEventListener('click', () => {
-    //     solverWorker.postMessage({
-    //         type: 'random_game'
-    //     });
-    // });
+    randomGameButton.addEventListener('click', () => {
+        solverWorker.postMessage({
+            type: 'random_game',
+            data: {
+                initialMatrix
+            }
+        });
+    });
 
-    solveButton.addEventListener('click', () => {
+    solveBFSButton.addEventListener('click', () => {
         gameContainer.classList.add('loading');
         solverWorker.postMessage({
-            type: 'solve',
+            type: 'solve_bfs',
+            data: {
+                matrix,
+                initialMatrix
+            }
+        });
+    });
+
+    solveAStarButton.addEventListener('click', () => {
+        gameContainer.classList.add('loading');
+        solverWorker.postMessage({
+            type: 'solve_a_star',
             data: {
                 matrix,
                 initialMatrix
@@ -209,7 +225,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, index * 200);
             });
         } else if (e.data.type === 'random_game_created') {
-
+            renderBoxes(e.data.game);
+        } else if (e.data.type === 'tree_height_incresead') {
+            gameInfo.innerHTML = `Game tree height: ${e.data.treeHeight}`;
         }
     }, false);
 });

@@ -5,7 +5,8 @@
 
 html, body {
 	background: white;
-    height: 100%;
+    min-height: 100vh;
+    height: auto;
     padding: 0;
     margin: 0;
 }
@@ -15,6 +16,7 @@ body {
   align-items: center;
   justify-content: center;
   transition: color 0.3s ease-out;
+    padding: 0.5rem;
 }
 
 body.dark-theme {
@@ -110,14 +112,15 @@ body.dark-theme {
 
 .game-controls {
     display: flex;
-    flex-flow: row wrap;
-    justify-content: space-evenly;
-    padding: 1.5rem 0;
+    flex-flow: column wrap;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem 0;
     color: inherit;
 }
 
 .game-controls button {
-    flex-basis: 25%;
+    flex: 1;
     color: inherit;
     background: transparent;
     border: 2px solid currentColor;
@@ -126,6 +129,24 @@ body.dark-theme {
     font-size: 1rem;
     font-weight: bold;
     margin-top: 1rem;
+}
+
+.game-controls .game-solves {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.game-controls .game-info {
+    font-weight: bold;
+    min-height: 1rem;
+}
+
+.game-controls button.solve {
+    width: 48%;
+    align-self: center;
+    margin: 0 0.2rem;
 }
 
 .game-controls button.filled {

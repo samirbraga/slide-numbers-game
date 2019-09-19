@@ -1,4 +1,3 @@
-
 const checkMatrixEquality = (m1, m2, i, j) => {
     if (m1[i][j] !== m2[i][j]) {
         return false;
@@ -39,16 +38,33 @@ const checkMatrixEquality = (m1, m2, i, j) => {
     return true;
 };
 
+const manhattanDistance = (i, j, u, v) => Math.abs(i - u) + Math.abs(j - v);
+
 const copyMatrix = m => {
     return m.slice(0).map(r => r.slice(0));
+};
+
+const insertInOrder = (list, newElement, compare) => {
+    let index = 0;
+    for (let item of list) {
+        if (compare(item, newElement)) {
+            list.splice(index, 0, newElement);
+            return;
+        }
+        index++;
+    }
+
+    list.splice(index, 0, newElement);
 };
 
 const StepNode = function () {
     this.blankPosition = [0, 0];
     this.parentNode = null;
+    this.numberOfParents = 0;
     this.playedPosition = [];
     this.children = [];
     this.matrix = [];
+    this.level = 0;
     this.isSolution = false;
 
     this.getPath = () => {
@@ -71,7 +87,25 @@ const StepNode = function () {
                 }
             }
         }
-    }
+    };
+
+    this.calculateWeight = () => {
+        let weight = 0;
+        const SIZE = this.matrix.length;
+        for (let i = 0; i < SIZE; i++) {
+            for (let j = 0; j < SIZE; j++) {
+                let number = this.matrix[i][j] - 1;
+                if (number === -1) k = 9;
+
+                let u = Math.floor(number / SIZE);
+                let v = number % SIZE;
+
+                weight += manhattanDistance(i, j, u, v);
+            }
+        }
+
+        this.weight = weight; 
+    };
 
     this.play = (i, j) => {
         const m = copyMatrix(this.matrix);
@@ -140,6 +174,7 @@ const StepNode = function () {
             child.playedPosition = [i + di, j + dj];
             child.blankPosition = [i + di, j + dj];
             child.parentNode = this;
+            child.numberOfParents = this.numberOfParents + 1;
 
             child.matrix = this.play(...child.playedPosition);
             let hasAlreadyPlayed = false;
@@ -153,6 +188,8 @@ const StepNode = function () {
 
             if (!hasAlreadyPlayed) {
                 child.initialMatrix = this.initialMatrix;
+                child.level = this.level + 1;
+                child.calculateWeight();
                 child.checkSolution();
                 this.children.push(child);
 
@@ -164,7 +201,7 @@ const StepNode = function () {
     };
 };
 
-const solve = (m, initialMatrix) => {
+const solveWithAStar = (m, initialMatrix) => {
     const root = new StepNode();
     root.initialMatrix = initialMatrix;
     root.matrix = copyMatrix(m);
@@ -177,8 +214,59 @@ const solve = (m, initialMatrix) => {
 
     let queue = [root];
 
+    let treeHeight = 1;
+
     while (queue.length > 0) {
         const node = queue[0];
+
+        if (node.numberOfParents > treeHeight) {
+            treeHeight = node.numberOfParents;
+            self.postMessage({
+                type: 'tree_height_incresead',
+                treeHeight
+            });
+        }
+
+        const solutionFound = node.generateChildren();
+        if (solutionFound) {
+            return node.children[node.children.length - 1].getPath();
+        }
+        
+        queue.shift();
+
+        for (let child of node.children) {
+            insertInOrder(queue, child, (sibling, child) => sibling.weight > child.weight);
+        }
+    }
+
+    return [];
+};
+
+const solveWithBFS = (m, initialMatrix) => {
+    const root = new StepNode();
+    root.initialMatrix = initialMatrix;
+    root.matrix = copyMatrix(m);
+    root.blankPosition = root.findBlank();
+    root.checkSolution();
+
+    if (root.isSolution) {
+        return [];
+    }
+
+    let queue = [root];
+
+    let treeHeight = 1;
+
+    while (queue.length > 0) {
+        const node = queue[0];
+
+        if (node.numberOfParents > treeHeight) {
+            treeHeight = node.numberOfParents;
+            self.postMessage({
+                type: 'tree_height_incresead',
+                treeHeight
+            });
+        }
 
         const solutionFound = node.generateChildren();
         if (solutionFound) {
@@ -193,7 +281,7 @@ const solve = (m, initialMatrix) => {
     return [];
 };
 
-const randomGame = (times=50) => {
+const randomGame = (initialMatrix, times=5) => {
     const game = new StepNode();
     game.initialMatrix = initialMatrix;
     game.matrix = copyMatrix(initialMatrix);
@@ -214,8 +302,15 @@ const randomGame = (times=50) => {
 self.addEventListener('message', function (e) {
     const { type, data } = e.data;
 
-    if (type === 'solve') {
-        const steps = solve(data.matrix, data.initialMatrix);
+    if (type === 'solve_bfs') {
+        const steps = solveWithBFS(data.matrix, data.initialMatrix);
+
+        self.postMessage({
+            type: 'solved',
+            steps
+        });
+    } else if (type === 'solve_a_star') {
+        const steps = solveWithAStar(data.matrix, data.initialMatrix);
 
         self.postMessage({
             type: 'solved',
@@ -224,7 +319,7 @@ self.addEventListener('message', function (e) {
     } else if (type === 'random_game') {
         self.postMessage({
             type: 'random_game_created',
-            game: randomGame()
+            game: randomGame(data.initialMatrix)
         });
     }
 }, false);
