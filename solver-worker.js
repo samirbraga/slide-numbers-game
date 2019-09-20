@@ -57,29 +57,32 @@ const insertInOrder = (list, newElement, compare) => {
     list.splice(index, 0, newElement);
 };
 
-const StepNode = function () {
-    this.blankPosition = [0, 0];
-    this.parentNode = null;
-    this.numberOfParents = 0;
-    this.playedPosition = [];
-    this.children = [];
-    this.matrix = [];
-    this.level = 0;
-    this.isSolution = false;
+class StepNode {
+    blankPosition = [0, 0];
+    parentNode = null;
+    numberOfParents = 0;
+    playedPosition = [];
+    children = [];
+    matrix = [];
+    level = 0;
+    isSolution = false;
 
-    this.getPath = () => {
+    getPath = () => {
         let node = this;
         const steps = [];
 
+
         while (node) {
-            steps.unshift(node.playedPosition);
+            if (node.playedPosition.length > 0) {
+                steps.unshift(node.playedPosition);
+            }
             node = node.parentNode;
         }
 
         return steps;
     };
 
-    this.findBlank = () => {
+    findBlank = () => {
         for (let i = 0; i < this.matrix.length; i++) {
             for (let j = 0; j < this.matrix[0].length; j++) {
                 if (this.matrix[i][j] === 0) {
@@ -89,13 +92,13 @@ const StepNode = function () {
         }
     };
 
-    this.calculateWeight = () => {
+    calculateWeight = () => {
         let weight = 0;
         const SIZE = this.matrix.length;
         for (let i = 0; i < SIZE; i++) {
             for (let j = 0; j < SIZE; j++) {
                 let number = this.matrix[i][j] - 1;
-                if (number === -1) k = 9;
+                if (number === -1) number = 9;
 
                 let u = Math.floor(number / SIZE);
                 let v = number % SIZE;
@@ -107,7 +110,7 @@ const StepNode = function () {
         this.weight = weight; 
     };
 
-    this.play = (i, j) => {
+    play = (i, j) => {
         const m = copyMatrix(this.matrix);
         const newPositions = [
             [-1, 0],
@@ -135,14 +138,16 @@ const StepNode = function () {
         m[ni][nj] = m[i][j];
         m[i][j] = aux;
 
+        this.blankPosition = [i, j];
+
         return m;
     };
-
-    this.checkSolution = () => {
+    
+    checkSolution = () => {
         this.isSolution = checkMatrixEquality(this.matrix, this.initialMatrix, ...this.blankPosition);
     };
 
-    this.getOffsets = size => {
+    getOffsets = size => {
         const [i, j] = this.blankPosition;
         let playPositions = [
             [-1, 0],
@@ -159,7 +164,7 @@ const StepNode = function () {
         return playPositions;
     }
 
-    this.generateChildren = () => {
+    generateChildren = () => {
         if (this.isSolution) {
             return true;
         }
@@ -281,7 +286,7 @@ const solveWithBFS = (m, initialMatrix) => {
     return [];
 };
 
-const randomGame = (initialMatrix, times=5) => {
+const randomGame = (initialMatrix, times=50) => {
     const game = new StepNode();
     game.initialMatrix = initialMatrix;
     game.matrix = copyMatrix(initialMatrix);
@@ -289,7 +294,7 @@ const randomGame = (initialMatrix, times=5) => {
     game.checkSolution();
     
     for (let i = 0; i < times; i++) {
-        const offsets = game.getOffsets();
+        const offsets = game.getOffsets(initialMatrix.length);
         const offset = offsets[Math.round(Math.random() * (offsets.length - 1))];
         const move = [game.blankPosition[0] + offset[0], game.blankPosition[1] + offset[1]];
         game.matrix = game.play(...move);
