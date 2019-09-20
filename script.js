@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameInfo = document.querySelector(".game-info");
     const gameBoxes = [];
     const undoButton = document.querySelector("button.undo");
-    const redoButton = document.querySelector("button.redo");
+    // const redoButton = document.querySelector("button.redo");
     const solveBFSButton = document.querySelector("button.solve-bfs");
     const solveAStarButton = document.querySelector("button.solve-a-star");
     const randomGameButton = document.querySelector("button.random");
@@ -176,21 +176,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    redoButton.addEventListener('click', () => {
-        if (currentTimeIndex < actionTimeline.length) {
-            const [i, j] = actionTimeline[currentTimeIndex++];
-            play(matrix, i, j);
-        }
-    });
+    // redoButton.addEventListener('click', () => {
+    //     if (currentTimeIndex < actionTimeline.length) {
+    //         const [i, j] = actionTimeline[currentTimeIndex++];
+    //         play(matrix, i, j);
+    //     }
+    // });
 
-    randomGameButton.addEventListener('click', () => {
-        solverWorker.postMessage({
-            type: 'random_game',
-            data: {
-                initialMatrix
-            }
-        });
-    });
+    // randomGameButton.addEventListener('click', () => {
+    //     solverWorker.postMessage({
+    //         type: 'random_game',
+    //         data: {
+    //             initialMatrix
+    //         }
+    //     });
+    // });
 
     solveBFSButton.addEventListener('click', () => {
         gameContainer.classList.add('loading');

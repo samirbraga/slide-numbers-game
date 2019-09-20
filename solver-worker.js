@@ -104,7 +104,7 @@ const StepNode = function () {
             }
         }
 
-        this.weight = weight; 
+        this.weight = weight + this.level; 
     };
 
     this.play = (i, j) => {
